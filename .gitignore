@@ -1,0 +1,44 @@
+# ==========================================
+# Root / Global Ignores
+# ==========================================
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# ==========================================
+# Backend Specific Ignores
+# ==========================================
+# ⚠️ CRITICAL: Ignore sensitive session cookies and credentials
+backend/cookies-instagram-com.txt
+backend/src/service/cookies-instagram-com.txt
+backend/.env
+backend/.env
+
+# Ignore temporary download folders
+backend/src/downloads/
+backend/downloads/
+backend/node_modules/
+
+# Ignore compiled JavaScript outputs (if you build your TypeScript)
+backend/dist/
+backend/build/
+backend/.tsbuildinfo
+
+# ==========================================
+# Frontend Specific Ignores
+# ==========================================
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Ignore frontend build outputs (Vite defaults to 'dist')
+frontend/dist/
+frontend/build/
+frontend/node_modules/
+
+# IDE / Code Editor configs
+.vscode/
+.idea/

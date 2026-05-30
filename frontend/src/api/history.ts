@@ -25,10 +25,10 @@ export const historyApi = {
     },
 
     deleteItem: async (id: string): Promise<void> => {
-        await api.delete(`/api/history/${id}`)
+        await api.delete(`/history/${id}`)
     },
 
     clearAll: async (): Promise<void> => {
-        await api.delete('/api/history')
+        await api.delete('/history')
     },
 }

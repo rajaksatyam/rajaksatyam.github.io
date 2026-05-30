@@ -1,10 +1,10 @@
 import mongoose, { Document, Schema, model } from "mongoose";
-import type { GeminiAnalysis } from "../service/summery.LLM.service.js";
+import type { Analysis } from "../service/summery.LLM.service.js";
 
 export interface IHistory extends Document {
     userId: mongoose.Types.ObjectId;
     url: string;
-    result: GeminiAnalysis;
+    result: Analysis;
     createdAt: Date;
     updatedAt: Date;
 }

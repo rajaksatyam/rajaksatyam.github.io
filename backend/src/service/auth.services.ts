@@ -4,13 +4,17 @@ import type { Auth } from "../validate/auth.validate";
 import JWT, { type JwtPayload } from "jsonwebtoken";
 import { EnvConfig } from "../config/env.config";
 import { AppError } from "../errors/AppErrors.errors";
+import type { Types } from "mongoose";
 
 
+
+export const genToken = (id:Types.ObjectId|string)=>{
+  return JWT.sign({id}, EnvConfig.JWT_SECRET, { expiresIn: "15m" })
+}
 
 
 export const RegisterUser = async (data: Auth.SignUp) => {
 
-  console.log(data)
 
   const userExists = await findUser(data.userName);
   if (userExists) return "user Already Exists."
@@ -24,7 +28,7 @@ export const RegisterUser = async (data: Auth.SignUp) => {
   };
   const user = await createUser(userData);
 
-  const token = JWT.sign({ id: user._id }, EnvConfig.JWT_SECRET, { expiresIn: "15m" });
+  const token = genToken(user._id);
 
   const FinalUserData = {
     userName: user.userName,
@@ -40,11 +44,10 @@ export const signInUser = async (data: Auth.SignIn) => {
   if (!user) { throw new AppError("Incorrect username/passwrod", 401) }
   if (!user.password) { throw new AppError("Incorrect username/passwrod", 401) }
   const validate = await verifyPassword(data.password, user.password)
-  console.log(validate)
 
   if (!validate) { throw new AppError("Incorrect username/password", 401) }
 
-  const token = JWT.sign({ id: user._id }, EnvConfig.JWT_SECRET, { expiresIn: "15m" });
+  const token = genToken(user._id)
 
   return {
     userName: user.userName,

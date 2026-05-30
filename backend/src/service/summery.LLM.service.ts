@@ -1,11 +1,10 @@
 import { GoogleGenAI } from "@google/genai"
 import { EnvConfig } from "../config/env.config"
 import fs from "fs"
-
-
+// import OpenAI from "openai"
+import { logger } from "../utility/logger.utility"
 
 const PROMPT = `You are a Video Analysis AI.
-
 ABSOLUTE RULE — YOUR ENTIRE RESPONSE MUST BE A SINGLE RAW JSON OBJECT.
 - Do NOT write anything before the opening {
 - Do NOT write anything after the closing }
@@ -38,16 +37,12 @@ Return this exact structure:
 }`
 
 
-
-// ─── Types ────────────────────────────────────────────────────
-// Define the shape of what Gemini returns
-// Now your entire app knows exactly what gemini() returns
 interface TranscriptionEntry {
   timestamp: string
   text: string
 }
 
-export interface GeminiAnalysis {
+export interface Analysis {
   title: string
   summary: {
     overview: string
@@ -65,67 +60,73 @@ export interface GeminiAnalysis {
   }[]
 }
 
-// ─── Setup ────────────────────────────────────────────────────
-const GEMINI_KEY = EnvConfig.GEMINI_KEY
-const AI = new GoogleGenAI({ apiKey: GEMINI_KEY })
 
-// ─── Find downloaded file ─────────────────────────────────────
-const getDownloadedFile = (): string => {
+const geminiAI = new GoogleGenAI({ apiKey: EnvConfig.GEMINI_KEY })
+// const openAI = new OpenAI({ apiKey: EnvConfig.OPENAI_KEY })
+
+
+const getDownloadedFile = (jobId: string): string => {
   const files = fs.readdirSync("src/downloads")
-  const found = files.find(f => f.startsWith("video"))
+  const found = files.find(f => f.startsWith(jobId))
   if (!found) throw new Error("No video file found in src/downloads")
   return found
 }
 
-// ─── Strip markdown fences if Gemini wraps in ```json ─────────
-// Even with instructions, LLMs sometimes add backticks
-// This removes them safely
 const extractJSON = (raw: string): string => {
   return raw
-    .replace(/^```json\s*/i, "") // remove opening ```json
-    .replace(/^```\s*/i, "")     // remove opening ```
-    .replace(/```\s*$/i, "")     // remove closing ```
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "")
     .trim()
 }
 
-// ─── Main Function ────────────────────────────────────────────
-export const gemini = async (): Promise<GeminiAnalysis> => {
-  const downloadedFile = getDownloadedFile()
+const getFileExtInfo = (jobId: string): [string, string] => {
+  const downloadedFile = getDownloadedFile(jobId)
   const filePath = `src/downloads/${downloadedFile}`
+  const ext = downloadedFile.split(".").pop()?.toLowerCase()
 
-  // ── 1. Upload video ────────────────────────────────────────
-  console.log("📤 Uploading video...")
-  const uploadVideo = await AI.files.upload({
+  const mimeMap: Record<string, string> = {
+    webm: "video/webm",
+    mkv: "video/x-matroska",
+    mov: "video/quicktime",
+    avi: "video/x-msvideo",
+  }
+
+  const mimeType = mimeMap[ext ?? ""] ?? "video/mp4"
+  return [mimeType, filePath]
+}
+
+
+const analyzeWithGemini = async (jobId: string): Promise<Analysis> => {
+  const [mimeType, filePath] = getFileExtInfo(jobId)
+
+ logger.debug("Uploading video...")
+  const uploadVideo = await geminiAI.files.upload({
     file: filePath,
-    config: { mimeType: "video/mp4" }, // pick one — not "video/mkv/mp4"
+    config: { mimeType },
   })
-  console.log(`✅ Upload successful: ${uploadVideo.uri}`)
+  logger.debug(`Upload successful: ${uploadVideo.uri}`)
 
-  // ── 2. Wait for processing ─────────────────────────────────
-  let fileStatus = await AI.files.get({ name: uploadVideo.name! })
-
+  let fileStatus = await geminiAI.files.get({ name: uploadVideo.name! })
   while (fileStatus.state === "PROCESSING") {
-    console.log("⏳ Processing... retrying in 5s")
+    logger.debug("Processing... retrying in 5s")
     await new Promise(resolve => setTimeout(resolve, 5000))
-    fileStatus = await AI.files.get({ name: uploadVideo.name! })
+    fileStatus = await geminiAI.files.get({ name: uploadVideo.name! })
   }
 
   if (fileStatus.state === "FAILED") {
     throw new Error("Video processing failed on Google's servers.")
   }
 
-  console.log("✅ Video ready for analysis")
+  logger.debug("Video ready for analysis")
 
-  // ── 3. Generate content ────────────────────────────────────
-  const response = await AI.models.generateContent({
-    model: "gemini-2.5-flash",
+  const response = await geminiAI.models.generateContent({
+    model: "gemini-2.5-flash-lite",
     config: {
       tools: [{ googleSearch: {} }],
-
     },
     contents: [
       {
-        // ← CORRECT structure: role + parts array
         role: "user",
         parts: [
           {
@@ -134,32 +135,44 @@ export const gemini = async (): Promise<GeminiAnalysis> => {
               mimeType: uploadVideo.mimeType!,
             },
           },
-          {
-            text: PROMPT,
-          },
+          { text: PROMPT },
         ],
       },
     ],
   })
 
-  // ── 4. Clean up video file ─────────────────────────────────
-  fs.rm(filePath, { force: true }, (err) => {
-    if (err) console.error("Cleanup failed:", err)
-    else console.log("🗑️ Video file cleaned up")
-  })
-
-  // ── 5. Parse response as JSON ──────────────────────────────
   const rawText = response.text ?? ""
+  const cleaned = extractJSON(rawText)
+  const parsed: Analysis = JSON.parse(cleaned)
+  return parsed
+}
+
+
+
+
+export const analyzeVideo = async (jobId: string): Promise<Analysis> => {
+  const [, filePath] = getFileExtInfo(jobId)
 
   try {
-    const cleaned = extractJSON(rawText)
-    const parsed:GeminiAnalysis = JSON.parse(cleaned)
-    return parsed
+    const result = await analyzeWithGemini(jobId)
+    logger.info("Analysis completed via Gemini")
+    return result
+  } catch (geminiError) {
+    logger.warn("Gemini failed, switching to OpenAI fallback...")
+    logger.warn(geminiError,"Gemini error:")
+      throw new Error(
+        "All LLM providers failed. Please check your API keys and video file."
+      )
+    }
+   finally {
 
-  } catch {
-    // If JSON.parse fails, log the raw response so you can debug
-    console.error("Failed to parse Gemini response as JSON:")
-    console.error(rawText)
-    throw new Error("Gemini returned invalid JSON")
+    try {
+      if (fs.existsSync(filePath)) {
+        await fs.promises.rm(filePath, { force: true })
+        logger.info("Video file cleaned up")
+      }
+    } catch (cleanupErr) {
+      logger.error(cleanupErr,"Cleanup failed:")
+    }
   }
 }

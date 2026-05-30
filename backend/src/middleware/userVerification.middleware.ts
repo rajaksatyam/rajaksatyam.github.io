@@ -10,9 +10,8 @@ export interface AuthRequest extends Request {
 
 export const verifyUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const token = req.cookies.token
-    console.log(token)
 
-    if (!token) throw new AppError("Unauthrize Access", 401);
+    if (!token) return next(new AppError("Unauthrize Access", 401));
 
     const tokenBlackListed = await blackListedTokenFinderRepo(token);
     if (tokenBlackListed) throw new AppError("Unauthrize Access", 401)

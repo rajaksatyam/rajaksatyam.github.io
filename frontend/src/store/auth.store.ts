@@ -22,14 +22,25 @@ export const useAuthStore = create<AuthState>()(
         set({ userName: res.User.userName, isAuth: true })
       },
 
+      // signIn: async (data) => {
+      //   const res = await authApi.signIn(data)
+      //   set({ userName: res.user.userName, isAuth: true })
+      // },
       signIn: async (data) => {
         const res = await authApi.signIn(data)
         set({ userName: res.user.userName, isAuth: true })
+        // Clean up the ?reason= param from the URL
+        window.history.replaceState({}, '', '/auth')
       },
 
       signOut: async () => {
-        await authApi.signOut()
-        set({ userName: null, isAuth: false })
+        try {
+          await authApi.signOut()
+        } catch (err) {
+          console.error('Sign out request failed:', err)
+        } finally {
+          set({ userName: null, isAuth: false })
+        }
       },
     }),
     { name: 'auth' }

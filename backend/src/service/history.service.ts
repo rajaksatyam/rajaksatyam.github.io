@@ -1,5 +1,5 @@
 import { historyModel } from "../models/history.model.js";
-import type { GeminiAnalysis } from "./summery.LLM.service.js";
+import type { Analysis } from "./summery.LLM.service.js";
 
 const LIMIT = 10;
 
@@ -7,7 +7,7 @@ const LIMIT = 10;
 export const saveHistoryService = async (
     userId: string,
     url: string,
-    result: GeminiAnalysis
+    result: Analysis
 ) => {
     return await historyModel.create({ userId, url, result });
 };

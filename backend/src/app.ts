@@ -1,7 +1,7 @@
 
 import express from "express";
 import type { Application, Request, Response } from "express";
-import { authRateLimit, gernalRateLimiter } from "./middleware/ratelimiter.middleware.js";
+import {gernalRateLimiter } from "./middleware/ratelimiter.middleware.js";
 import { logger } from "./utility/logger.utility.js";
 import PinoHttp from "pino-http";
 import cookie from "cookie-parser";
@@ -17,11 +17,25 @@ import { EnvConfig } from "./config/env.config.js";
 const app: Application = express();
 
 app.use(helmet());
-app.use(PinoHttp({ logger }))
+app.use(PinoHttp({
+  logger,
+  serializers: {
+    req: (req) => ({
+      id: req.id,
+      method: req.method,
+      url: req.url,
+      remoteAddress: req.remoteAddress,
+      userAgent: req.headers?.['user-agent'],
+    }),
+    res: (res) => ({
+      statusCode: res.statusCode,
+    }),
+  }
+}))
 app.use(express.json({ limit: '10kb' }));
 app.use(cookie());
 app.use(cors({ origin: EnvConfig.CLIENT_URI, credentials: true }))
-// app.use(gernalRateLimiter)
+app.use(gernalRateLimiter)
 
 
 app.use('/api/auth', authRouter)

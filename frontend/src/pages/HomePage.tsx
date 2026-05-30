@@ -8,11 +8,15 @@ import { Button } from '../components/ui/Button'
 import type { AnalysisResult } from '../types'
 import logo from "../assets/logo.png"
 
+
+
 export const HomePage = () => {
   const { userName, signOut } = useAuthStore()
   const { result, loading, error, analyse, reset } = useAnalyse()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+
+
 
   const handleSignOut = async () => {
     setSigningOut(true)
@@ -63,7 +67,7 @@ export const HomePage = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {/* <span style={{ fontSize: 16 }}>◈</span> */}
               <img style={{ width: 30 }} src={logo} alt="logo" />
-              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--accent)', letterSpacing: '-.02em' }}>KV</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--accent)', letterSpacing: '-.02em' }}>KB</span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

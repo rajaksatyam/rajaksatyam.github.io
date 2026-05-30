@@ -4,6 +4,7 @@ import type { AuthRequest } from "../middleware/userVerification.middleware.js";
 import type { JwtPayload } from "jsonwebtoken";
 import { download } from "../service/ydl.service.js";
 import { saveHistoryService } from "../service/history.service.js";
+import { logger } from "../utility/logger.utility.js";
 
 export const contentAnalisisController = async (
     req: AuthRequest,
@@ -17,7 +18,7 @@ export const contentAnalisisController = async (
 
 
     saveHistoryService(userId, url, data).catch((err) =>
-        console.error("History save failed:", err)
+        logger.error(err,"History save failed:")
     );
 
     res.json({ success: true, data });

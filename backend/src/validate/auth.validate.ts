@@ -10,7 +10,7 @@ const PASS_RULE = z
     .string()
     .min(8, "Password must be at least 8 characters long")
     .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%^&*()_+!{}:"])[A-Za-z\d@$#%^&*()_+!{}:"]+$/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%^&*()_+!{}:"])[A-Za-z\d@$#%^&*()_+!{}:."]+$/,
       {
         message:
           "Must contain at least one uppercase, one lowercase, one number, and one special character",

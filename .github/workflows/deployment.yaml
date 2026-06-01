@@ -14,10 +14,6 @@ jobs:
   # ==========================================
   deploy-frontend:
     runs-on: ubuntu-latest
-    # ✅ Only trigger when frontend code actually changed
-    if: |
-      contains(toJson(github.event.commits.*.modified), 'frontend/') ||
-      contains(toJson(github.event.commits.*.added), 'frontend/')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

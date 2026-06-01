@@ -5,19 +5,19 @@
 # =============================================================
 
 # ---- Stage 1: Build ----
-FROM node:22-slim AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 RUN npm run build
 
 
 # ---- Stage 2: Runtime ----
-FROM node:22-slim AS runner
+FROM node:24-slim AS runner
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ RUN yt-dlp --version && oci --version
 
 # Production dependencies only
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Compiled app from builder
 COPY --from=builder /app/dist ./dist

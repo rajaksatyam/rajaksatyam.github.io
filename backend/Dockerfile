@@ -9,6 +9,13 @@ FROM node:24-slim AS builder
 
 WORKDIR /app
 
+# ✅ Install Python here too — yt-dlp-exec checks for it during npm install
+RUN apt-get update -y && \
+    apt-get install -y python3 python3-pip --no-install-recommends && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
 RUN npm install
 
@@ -22,8 +29,9 @@ FROM node:24-slim AS runner
 WORKDIR /app
 
 # Install Python + pip + OCI CLI + yt-dlp
-RUN apt-get update -y && \
-    apt-get install -y python3 python3-pip curl --no-install-recommends && \
+RUN sudo apt-get update -y && \
+    sudo apt-get install -y python3 python3-pip curl --no-install-recommends && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install oci-cli yt-dlp --break-system-packages && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -48,5 +56,4 @@ USER appuser
 
 EXPOSE 5214
 
-# ✅ entrypoint fetches secrets then starts node
 CMD ["./entrypoint.sh"]

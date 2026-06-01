@@ -1,0 +1,16 @@
+services:
+  backend:
+    image: ${OCI_REGISTRY}/${OCI_NAMESPACE}/backend:latest
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "5214:5214"
+    mem_limit: 600m
+    environment:
+      - NODE_ENV=production
+      - SECRET_OCID_MONGO_URI=ocid1.vaultsecret.oc1.ap-mumbai-1.amaaaaaa6oe3pmyaezu2au4hbqn3omnu6jvjc4mds3susmh3ul4ouro7ig3q
+      - SECRET_OCID_JWT_SECRET=ocid1.vaultsecret.oc1.ap-mumbai-1.amaaaaaa6oe3pmyagifuigprsntw3axgqw3dtny4k4m5epoeck3xtqc7xsgq
+      - SECRET_OCID_CLIENT_URI=ocid1.vaultsecret.oc1.ap-mumbai-1.amaaaaaa6oe3pmyaeyp7bbqa6unyf7covd4xigxzjfjrdbiw2wn5swmmc44q
+      - SECRET_OCID_ARGON2_PEPPER=ocid1.vaultsecret.oc1.ap-mumbai-1.amaaaaaa6oe3pmya7j7bj5qvgzhpz7kbpwmpnsy4ckjjlgpdirwsv4cejlja
+      - SECRET_OCID_GEMINI_KEY=ocid1.vaultsecret.oc1.ap-mumbai-1.amaaaaaa6oe3pmyasjqk6zrfhr67zcae766e6euteq3ij3wppl7cmf6ucola
+      

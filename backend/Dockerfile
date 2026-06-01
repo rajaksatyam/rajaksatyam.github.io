@@ -29,8 +29,8 @@ FROM node:24-slim AS runner
 WORKDIR /app
 
 # Install Python + pip + OCI CLI + yt-dlp
-RUN sudo apt-get update -y && \
-    sudo apt-get install -y python3 python3-pip curl --no-install-recommends && \
+RUN apt-get update -y && \
+    apt-get install -y python3 python3-pip curl --no-install-recommends && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install oci-cli yt-dlp --break-system-packages && \
     apt-get clean && \

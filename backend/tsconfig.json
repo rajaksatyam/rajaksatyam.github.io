@@ -23,7 +23,10 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",      // 2. Includes everything in src
+    "server.ts"      // 3. Explicitly includes server.ts since it's outside src
+  ],
   "exclude": [
     "node_modules",
     "dist",

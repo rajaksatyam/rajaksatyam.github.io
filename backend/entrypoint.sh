@@ -30,9 +30,7 @@ export MONGO_URI=$(fetch_secret "$SECRET_OCID_MONGO_URI")
 export JWT_SECRET=$(fetch_secret "$SECRET_OCID_JWT_SECRET")
 export CLIENT_URI=$(fetch_secret "$SECRET_OCID_CLIENT_URI")
 export ARGON2_PEPPER=$(fetch_secret "$SECRET_OCID_ARGON2_PEPPER")
-export INSTA_KEY=$(fetch_secret "$SECRET_OCID_INSTA_KEY")
 export GEMINI_KEY=$(fetch_secret "$SECRET_OCID_GEMINI_KEY")
-export OPENAI_KEY=$(fetch_secret "$SECRET_OCID_OPENAI_KEY")
 
 echo "[entrypoint] Secrets loaded. Starting app..."
 

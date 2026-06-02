@@ -162,8 +162,9 @@ jobs:
       # 2.ADDED: Convert registry path to lowercase to prevent Docker build errors
       - name: Set lowercased image tag
         run: |
-          echo "GHCR_IMAGE=ghcr.io/${{ github.repository }}/backend:latest" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
-
+          # 💡 Store the path in a local variable, then lowercase only the value
+          IMAGE_PATH="ghcr.io/${{ github.repository }}/backend:latest"
+          echo "GHCR_IMAGE=${IMAGE_PATH,,}" >> $GITHUB_ENV
       # 3.CHANGED: Push to the new GHCR tag environment variable
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5

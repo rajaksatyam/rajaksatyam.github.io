@@ -1,6 +1,5 @@
 import "dotenv/config"
 import { z} from 'zod';
-import { logger } from "../utility/logger.utility";
 
 
 
@@ -11,16 +10,14 @@ const configSchema = z.object({
     NODE_ENV:z.enum(["development","production","test"]).default("development"),
     CLIENT_URI:z.string().min(1,"CLIENT_URI is missing."),
     ARGON2_PEPPER:z.string().min(1,"ARGON2_PEPPER is Missing."),
-    INSTA_KEY:z.string().min(1,"INSTA_KEY is Missing."),
     GEMINI_KEY:z.string().min(1,"GEMINI_KEY is Missing."),
-    OPENAI_KEY:z.string().min(1,"OPENAI_KEY is Missing.")
 })
 
 const parse = configSchema.safeParse(process.env);
 
 if(!parse.success){
-    logger.error("Env Missconfigration.");
-    parse.error.issues.forEach(issue=>{logger.error(`path:${issue.path.join(".")} message:${issue.message}`)})
+    console.error("Env Missconfigration.");
+    parse.error.issues.forEach(issue=>{console.error(`path:${issue.path.join(".")} message:${issue.message}`)})
     process.exit(1);   
 }
 export const EnvConfig = parse.data;

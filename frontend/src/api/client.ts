@@ -1,7 +1,7 @@
 import axios from "axios"
 
 export const api = axios.create({
-  baseURL: "https://kb-api.flashhub.net/api",
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
   withCredentials: true, // must be true for cookies
 })
 

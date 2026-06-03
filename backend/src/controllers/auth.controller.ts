@@ -10,7 +10,7 @@ import { logger } from "../utility/logger.utility.js";
 const cookie = (res: Response, token: string) => {
   return res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "none",
     secure: EnvConfig.NODE_ENV === "production",
     maxAge: 15 * 60 * 1000
 
@@ -76,6 +76,6 @@ export const signOutController = async (req: Request, res: Response) => {
 export const refreshController = (req: Request, res: Response, next: NextFunction) => {
 
   const token = genToken(req.body.user.id)
-  cookie(res,token)
+  cookie(res, token)
   res.json({ ok: true })
 }

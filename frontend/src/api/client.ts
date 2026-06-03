@@ -26,18 +26,36 @@ export function startTokenRefresh() {
 }
 
 // Also handle 401 responses as a safety net
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      try {
-        await api.post("/auth/refresh")
-        // retry original request
-        return api(error.config)
-      } catch {
-        window.location.href = "/auth"
-      }
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     if (error.response?.status === 401) {
+//       try {
+//         await api.post("/auth/refresh")
+//         // retry original request
+//         return api(error.config)
+//       } catch {
+//         window.location.href = "/auth"
+//       }
+//     }
+//     return Promise.reject(error)
+//   }
+// )
+// ✅ Fixed
+api.interceptors.response.use(null, async (error) => {
+  const originalRequest = error.config
+
+  if (error.response?.status === 401 && !originalRequest._retry) {
+    originalRequest._retry = true  // ← prevents infinite loop
+    try {
+      await api.post("/auth/refresh")
+      return api(originalRequest)
+    } catch {
+      // refresh failed, redirect to login
+      window.location.href = '/#/auth'
+      return Promise.reject(error)
     }
-    return Promise.reject(error)
   }
-)
+
+  return Promise.reject(error)
+})

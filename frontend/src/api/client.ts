@@ -1,31 +1,7 @@
-// import axios from 'axios'
-// import { useAuthStore } from '../store/auth.store'
-
-// export const api = axios.create({
-//   baseURL: '/',
-//   withCredentials: true,
-// })
-
-// api.interceptors.response.use(
-//   (r) => r,
-//   (err) => {
-//     if (err.response?.status === 401) {
-//       useAuthStore.setState({ isAuth: false, userName: null })
-
-//       // Pass a reason so the login page can show a message
-//       window.location.replace('/auth?reason=session_expired')
-//     }
-
-//     const msg = err.response?.data?.message ?? err.response?.data?.msg ?? 'Something went wrong'
-//     return Promise.reject(new Error(msg))
-//   }
-// )
-
-// src/lib/axios.ts
 import axios from "axios"
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "/api",
+  baseURL: "https://kb-api.flashhub.net/api",
   withCredentials: true, // must be true for cookies
 })
 

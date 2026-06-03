@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/auth.store'
 import { AuthPage } from './pages/AuthPage'
 import { HomePage } from './pages/HomePage'
@@ -14,11 +14,11 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 }
 
 export const App = () => (
-  <BrowserRouter>
+  <HashRouter>
     <Routes>
       <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
       <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  </BrowserRouter>
+  </HashRouter>
 )

@@ -196,9 +196,6 @@ import { logger } from "../utility/logger.utility.js"
 const PROMPT = "\n\nYou are a Web Content & Video Analysis AI.\nABSOLUTE RULE — YOUR ENTIRE RESPONSE MUST BE A SINGLE RAW JSON OBJECT.\n- Do NOT write anything before the opening {\n- Do NOT write anything after the closing }\n- Do NOT use markdown, backticks, or ```json fences\n- Do NOT add explanations outside the JSON\n\nUse the Google Search tool internally to fetch and verify content from the provided URL, then embed results inside the JSON fields. Do not output search results separately.\n\nReturn this exact structure:\n{\n  \"title\": \"string with 1 relevant emoji at start\",\n  \"source\": {\n    \"url\": \"the original URL provided\",\n    \"platform\": \"detected platform (e.g. Instagram, YouTube, Twitter, Article)\",\n    \"contentType\": \"video | image | article | post | other\"\n  },\n  \"summary\": {\n    \"overview\": \"2-3 sentence overview of the content at the URL\",\n    \"keyPoints\": [\"point 1\", \"point 2\"]\n  },\n  \"transcription\": [\n    { \"timestamp\": \"MM:SS\", \"text\": \"what was said or shown (use 00:00 for non-video content)\" }\n  ],\n  \"verification\": {\n    \"factCheckReport\": \"which claims are confirmed, corrected, or need context\",\n    \"verdict\": \"accurate | inaccurate | partially accurate\"\n  },\n  \"resources\": [\n    {\n      \"platform\": \"source name\",\n      \"url\": \"full URL\",\n      \"relevance\": \"one line why this matters\"\n    }\n  ]\n}"
 
 
-logger.info(EnvConfig.GEMINI_KEY)
-
-
 interface TranscriptionEntry {
   timestamp: string
   text: string
@@ -231,6 +228,7 @@ const extractJSON = (raw: string): string => {
     .trim()
 }
 
+logger.info(EnvConfig.GEMINI_KEY);
 
 const geminiAI = new GoogleGenAI({ apiKey: EnvConfig.GEMINI_KEY })
 // const openAI = new OpenAI({ apiKey: EnvConfig.OPENAI_KEY })

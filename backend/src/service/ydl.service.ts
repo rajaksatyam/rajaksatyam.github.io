@@ -42,7 +42,7 @@ export const download = async (URL: string) => {
   const info = await YTD(URL, options);
   const cdnURL = info.url ?? info.formats?.at(-1)?.url
   const summery: Analysis = await analyzeVideo(cdnURL);
-  // const summery: Analysis = await analyzeVideo(jobId);
+ 
   return summery;
 }
 

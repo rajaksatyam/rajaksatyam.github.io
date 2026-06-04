@@ -28,7 +28,7 @@
 import { useAuthStore } from './store/auth.store'
 import { startTokenRefresh } from './api/client'
 import { useEffect } from 'react'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthPage } from './pages/AuthPage'
 import { HomePage } from './pages/HomePage'
 
@@ -52,11 +52,11 @@ export const App = () => {
     }
   }, [])
 
-  return < HashRouter >
+  return < BrowserRouter >
     <Routes>
       <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
       <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  </HashRouter >
+  </BrowserRouter >
 }

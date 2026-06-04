@@ -26,13 +26,13 @@ export const download = async (URL: string) => {
   //   addHeader: ['referer:youtube.com', 'user-agent:googlebot'] as any
   // };
 
-   const options: any = {
+  const options: any = {
     preferFreeFormats: true,
     dumpSingleJson: true,   // just metadata, no download
     noWarnings: true,
-    cookiefile: '/app/cookies.txt',
+    cookies: '/app/cookies.txt',
     addHeader: ['referer:instagram.com',
-    'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'] as any
+      'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'] as any
   };
 
   // if (hasCookies) {

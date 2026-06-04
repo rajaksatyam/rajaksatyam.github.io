@@ -15,7 +15,7 @@ import { globalErrors, notFoundError } from "./middleware/errorHandle.middleware
 import { EnvConfig } from "./config/env.config.js";
 
 const app: Application = express();
-
+app.set('trust proxy',1)
 app.use(helmet());
 app.use(PinoHttp({
   logger,

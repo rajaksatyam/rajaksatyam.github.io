@@ -1,0 +1,16 @@
+# Netscape HTTP Cookie File
+
+#HttpOnly_.instagram.com	TRUE	/	TRUE	1800514500.607	ig_did	8EE5B151-E145-4205-A0F9-1B6B3F47C317
+#HttpOnly_.instagram.com	TRUE	/	TRUE	1803538507.804	datr	S3hwaS-lv44n4LeRhzLv7BGR
+.instagram.com	TRUE	/	TRUE	1803538512.371	mid	aXB4UAAEAAEyc665bsoAT_2cL4Bk
+.instagram.com	TRUE	/	TRUE	1800514512.371	ig_nrcb	1
+#HttpOnly_.instagram.com	TRUE	/	TRUE	1806646283.133	ps_l	1
+#HttpOnly_.instagram.com	TRUE	/	TRUE	1806646283.14	ps_n	1
+.instagram.com	TRUE	/	TRUE	1779358976	wd	1884x1006
+.instagram.com	TRUE	/	TRUE	1813314565.85	csrftoken	sB5j52qQQBIFpThjJcmxnZk2yanOAsMJ
+.instagram.com	TRUE	/	TRUE	1786530565.85	ds_user_id	72443665508
+#HttpOnly_.instagram.com	TRUE	/	TRUE	1810289714.151	sessionid	72443665508%3AnAb1swfHv9zz8O%3A19%3AAYjqv8dYv0hpkwBrIn34I-tWvpvY8-pMXcM8UGhmgw
+#HttpOnly_.instagram.com	TRUE	/	TRUE	0	rur	"FRC\05472443665508\0541810290565:01fe81ea479d19bdf2be5baf0079e3118116cd8ab49c2814ca2dc6d4b4cb1c0eecd0e7f9"
+.instagram.com	TRUE	/	FALSE	1778753701.894	th_eu_pref	""
+.www.instagram.com	TRUE	/	FALSE	1778753701.894	th_eu_pref	""
+www.instagram.com	FALSE	/	FALSE	1778753701.894	th_eu_pref	""

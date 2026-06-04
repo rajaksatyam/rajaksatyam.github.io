@@ -30,7 +30,9 @@ export const download = async (URL: string) => {
     preferFreeFormats: true,
     dumpSingleJson: true,   // just metadata, no download
     noWarnings: true,
-    addHeader: ['referer:youtube.com', 'user-agent:googlebot'] as any
+    cookiefile: '/app/cookies.txt',
+    addHeader: ['referer:instagram.com',
+    'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'] as any
   };
 
   // if (hasCookies) {

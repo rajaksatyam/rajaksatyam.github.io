@@ -193,7 +193,64 @@ import { GoogleGenAI } from "@google/genai"
 import { EnvConfig } from "../config/env.config.js"
 import { logger } from "../utility/logger.utility.js"
 
-const PROMPT = "\n\nYou are a Web Content & Video Analysis AI.\nABSOLUTE RULE — YOUR ENTIRE RESPONSE MUST BE A SINGLE RAW JSON OBJECT.\n- Do NOT write anything before the opening {\n- Do NOT write anything after the closing }\n- Do NOT use markdown, backticks, or ```json fences\n- Do NOT add explanations outside the JSON\n\nUse the Google Search tool internally to fetch and verify content from the provided URL, then embed results inside the JSON fields. Do not output search results separately.\n\nReturn this exact structure:\n{\n  \"title\": \"string with 1 relevant emoji at start\",\n  \"source\": {\n    \"url\": \"the original URL provided\",\n    \"platform\": \"detected platform (e.g. Instagram, YouTube, Twitter, Article)\",\n    \"contentType\": \"video | image | article | post | other\"\n  },\n  \"summary\": {\n    \"overview\": \"2-3 sentence overview of the content at the URL\",\n    \"keyPoints\": [\"point 1\", \"point 2\"]\n  },\n  \"transcription\": [\n    { \"timestamp\": \"MM:SS\", \"text\": \"what was said or shown (use 00:00 for non-video content)\" }\n  ],\n  \"verification\": {\n    \"factCheckReport\": \"which claims are confirmed, corrected, or need context\",\n    \"verdict\": \"accurate | inaccurate | partially accurate\"\n  },\n  \"resources\": [\n    {\n      \"platform\": \"source name\",\n      \"url\": \"full URL\",\n      \"relevance\": \"one line why this matters\"\n    }\n  ]\n}"
+const PROMPT = `
+
+You are a Web Content & Video Analysis AI. Your job is to deeply analyze the content at the provided URL.
+
+STEP 1 — Use the Google Search tool to:
+- Search for the exact URL to find metadata, titles, descriptions
+- Search for the video/post title + "transcript" or "full transcript"
+- Search for the video/post title + "summary" or "explained"
+- Search for any fact-checking articles related to the claims made
+- Collect as much detail as possible before composing your response
+
+STEP 2 — Compose your response.
+
+ABSOLUTE RULE — YOUR ENTIRE RESPONSE MUST BE A SINGLE RAW JSON OBJECT.
+- Do NOT write anything before the opening {
+- Do NOT write anything after the closing }
+- Do NOT use markdown, backticks, or \`\`\`json fences
+- Do NOT add explanations outside the JSON
+
+Return this exact structure:
+{
+  "title": "string with 1 relevant emoji at start — use the actual video/post title",
+  "source": {
+    "url": "the original URL provided",
+    "platform": "detected platform (e.g. Instagram, YouTube, Twitter, Reddit, Article)",
+    "contentType": "video | image | article | post | other",
+    "author": "channel name, username, or author if found",
+    "publishedAt": "publication date if found, else empty string"
+  },
+  "summary": {
+    "overview": "3-5 sentence detailed overview covering the main topic, context, and conclusion of the content",
+    "keyPoints": ["detailed point 1", "detailed point 2", "detailed point 3", "detailed point 4", "detailed point 5"]
+  },
+  "transcription": [
+    {
+      "timestamp": "MM:SS",
+      "text": "Full verbatim or near-verbatim transcript segment. Include as many entries as needed to cover the ENTIRE content — do not truncate or summarize here. For non-video content use 00:00 for all entries."
+    }
+  ],
+  "verification": {
+    "claims": [
+      {
+        "claim": "specific claim made in the content",
+        "verdict": "true | false | misleading | unverified",
+        "explanation": "evidence or reasoning from search results"
+      }
+    ],
+    "overallVerdict": "accurate | inaccurate | partially accurate | unverified",
+    "factCheckReport": "comprehensive paragraph summarizing which claims are confirmed, corrected, or need context based on search results"
+  },
+  "resources": [
+    {
+      "platform": "source name",
+      "url": "full URL",
+      "relevance": "one line why this matters"
+    }
+  ]
+}`
 
 
 interface TranscriptionEntry {
@@ -203,14 +260,27 @@ interface TranscriptionEntry {
 
 export interface Analysis {
   title: string
+  source?: {
+    url: string
+    platform: string
+    contentType: string
+    author?: string
+    publishedAt?: string
+  }
   summary: {
     overview: string
     keyPoints: string[]
   }
   transcription: TranscriptionEntry[]
   verification: {
+    claims?: {
+      claim: string
+      verdict: string
+      explanation: string
+    }[]
+    overallVerdict?: string
     factCheckReport: string
-    verdict: "accurate" | "inaccurate" | "partially accurate"
+    verdict?: "accurate" | "inaccurate" | "partially accurate" | "unverified"
   }
   resources: {
     platform: string

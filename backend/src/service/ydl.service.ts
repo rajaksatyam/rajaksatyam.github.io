@@ -3,6 +3,7 @@ import { analyzeVideo, type Analysis } from './summery.LLM.service.js';
 import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
+import { logger } from "../utility/logger.utility.js";
 
 
 
@@ -40,6 +41,7 @@ export const download = async (URL: string) => {
   // }
 
   const info = await YTD(URL, options);
+  logger.info(info)
   const cdnURL = info.url ?? info.formats?.at(-1)?.url
   const summery: Analysis = await analyzeVideo(cdnURL);
  

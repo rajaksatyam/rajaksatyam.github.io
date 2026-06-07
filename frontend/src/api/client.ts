@@ -47,7 +47,7 @@
 import axios from "axios"
 
 export const api = axios.create({
-  baseURL: 'https://kb-api.flashhub.net/api',
+  baseURL: "/api",
   withCredentials: true,
 })
 
@@ -60,7 +60,7 @@ function scheduleRefresh() {
       await api.post("/auth/refresh")
       scheduleRefresh()
     } catch {
-      window.location.href = '/#/auth'
+      window.location.href = '/auth'
     }
   }, 14 * 60 * 1000)
 }
@@ -83,7 +83,7 @@ api.interceptors.response.use(null, async (error) => {
       scheduleRefresh() // restart the timer after successful refresh
       return api(originalRequest)
     } catch {
-      window.location.href = '/#/auth'
+      window.location.href = '/auth'
       return Promise.reject(error)
     }
   }

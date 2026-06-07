@@ -8,12 +8,12 @@ import { logger } from "../utility/logger.utility.js";
 
 
 const cookie = (res: Response, token: string) => {
+  const isProd = EnvConfig.NODE_ENV === "production";
   return res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "none",
-    secure: EnvConfig.NODE_ENV === "production",
-    maxAge: 15 * 60 * 1000
-
+    sameSite: "lax",
+    secure: false,
+    maxAge: 15 * 60 * 1000,
   });
 }
 
@@ -48,6 +48,7 @@ export const SignInController = async (
   const user = await signInUser(req.body);
 
   cookie(res, user.token)
+
 
   return res.status(200).json({
     msg: "User SignIn Sucessfully.",

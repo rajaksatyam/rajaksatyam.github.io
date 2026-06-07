@@ -298,10 +298,7 @@ const extractJSON = (raw: string): string => {
     .trim()
 }
 
-logger.info(EnvConfig.GEMINI_KEY);
-
 const geminiAI = new GoogleGenAI({ apiKey: EnvConfig.GEMINI_KEY })
-// const openAI = new OpenAI({ apiKey: EnvConfig.OPENAI_KEY })
 
 
 
@@ -333,10 +330,9 @@ export const analyzeVideo = async (cdnURL: string): Promise<Analysis> => {
     logger.info("Analysis completed via Gemini")
     return result
   } catch (geminiError) {
-    logger.warn("Gemini failed, switching to OpenAI fallback...")
     logger.warn(geminiError, "Gemini error:")
     throw new Error(
-      "All LLM providers failed. Please check your API keys and video file."
+      "LLM providers failed. Please check your API keys and video file."
     )
   }
 

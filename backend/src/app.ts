@@ -34,7 +34,7 @@ app.use(PinoHttp({
 }))
 app.use(express.json({ limit: '10kb' }));
 app.use(cookie());
-app.use(cors({ origin: 'https://d236n8rn53bkth.cloudfront.net', credentials: true }))
+app.use(cors({ origin: EnvConfig.CLIENT_URI, credentials: true })) //'https://d236n8rn53bkth.cloudfront.net'
 app.use(gernalRateLimiter)
 
 

@@ -9,7 +9,6 @@ export default defineConfig({
       '/api': {
         target: 'https://kb-api.flashhub.net',
         changeOrigin: true,
-        cookieDomainRewrite: 'localhost',
       },
     },
   },

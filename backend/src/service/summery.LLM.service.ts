@@ -147,13 +147,145 @@
 
 // }
 
+// import { GoogleGenAI } from "@google/genai";
+
+// const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+// export const analyzeVideo = async (cdnURL:string) => {
+//   try {
+//     const promptText = `You are a Web Content & Video Analysis AI. Your job is to deeply analyze the provided video.
+
+// STEP 1 — Watch the video fully to extract metadata, visual context, and audio cues.
+// STEP 2 — Transcribe the spoken audio verbatim with accurate timestamps.
+// STEP 3 — Compose your response based strictly on the video content.
+
+// ABSOLUTE RULE — YOUR ENTIRE RESPONSE MUST BE CONTAINED WITHIN A MARKDOWN JSON CODE BLOCK.
+// - You MUST wrap your entire response inside \`\`\`json and \`\`\` fences.
+// - Do NOT write any conversational text or explanations outside the code block.
+// - Ensure the contents are a single, fully valid JSON object matching the requested schema.
+// - CRITICAL: All internal double quotes (") inside your string values MUST be escaped as \\" to ensure valid JSON syntax. Newlines must be escaped as \\n.
+
+// Return this exact structure:
+// {
+//   "title": "string with 1 relevant emoji at start — use the actual video title or a highly descriptive one if missing",
+//   "source": {
+//     "url": "the original URL provided",
+//     "platform": "Instagram",
+//     "contentType": "video",
+//     "author": "channel name or username if visible in video, else unknown",
+//     "publishedAt": ""
+//   },
+//   "summary": {
+//     "overview": "3-5 sentence detailed overview covering the main topic, context, and conclusion of the video",
+//     "keyPoints": ["detailed point 1", "detailed point 2", "detailed point 3"]
+//   },
+//   "transcription": [
+//     {
+//       "timestamp": "MM:SS",
+//       "text": "Full verbatim or near-verbatim transcript segment."
+//     }
+//   ],
+//   "verification": {
+//     "claims": [],
+//     "overallVerdict": "verified",
+//     "factCheckReport": "Not applicable for this short media asset."
+//   },
+//   "resources": []
+// }`;
+
+//     const response = await ai.models.generateContent({
+//       model: "gemini-2.5-flash", // Use a multimodal model that handles video natively
+//       contents: [
+//         {
+//           fileData: {
+//             fileUri: cdnURL,
+//             mimeType: "video/mp4"
+//           }
+//         },
+//         {
+//           text: promptText
+//         }
+//       ]
+//     });
+
+//     const rawText = response.text;
+
+//     // Extract the JSON block safely from the markdown wrapper
+//     const jsonMatch = rawText.match(/```json([\s\S]*?)```/);
+//     const cleanJsonText = jsonMatch ? jsonMatch[1].trim() : rawText.trim();
+
+//     return JSON.parse(cleanJsonText);
+
+//   } catch (error) {
+//     console.error("Gemini processing failed:", error);
+//     throw error;
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export const analyzeVideo = async (cdnURL:string) => {
-  try {
-    const promptText = `You are a Web Content & Video Analysis AI. Your job is to deeply analyze the provided video.
+export interface Analysis {
+  title: string;
+  source: {
+    url: string;
+    platform: string;
+    contentType: string;
+    author: string;
+    publishedAt: string;
+  };
+  summary: {
+    overview: string;
+    keyPoints: string[];
+  };
+  transcription: Array<{
+    timestamp: string;
+    text: string;
+  }>;
+  verification: {
+    claims: Array<{
+      claim: string;
+      verdict: string;
+      explanation: string;
+    }>;
+    overallVerdict: string;
+    factCheckReport: string;
+  };
+  resources: Array<{
+    platform: string;
+    url: string;
+    relevance: string;
+  }>;
+}
+
+
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  throw new Error("CRITICAL: GEMINI_API_KEY environment variable is missing.");
+}
+
+const ai = new GoogleGenAI({ apiKey });
+
+
+export async function analyzeVideo(cdnURL: string): Promise<Analysis> {
+  const promptText = `You are a Web Content & Video Analysis AI. Your job is to deeply analyze the provided video.
 
 STEP 1 — Watch the video fully to extract metadata, visual context, and audio cues.
 STEP 2 — Transcribe the spoken audio verbatim with accurate timestamps.
@@ -193,33 +325,26 @@ Return this exact structure:
   "resources": []
 }`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash", // Use a multimodal model that handles video natively
-      contents: [
-        {
-          fileData: {
-            fileUri: cdnURL,
-            mimeType: "video/mp4"
-          }
-        },
-        {
-          text: promptText
-        }
-      ]
-    });
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      { fileData: { fileUri: cdnURL, mimeType: "video/mp4" } },
+      { text: promptText }
+    ]
+  });
 
-    const rawText = response.text;
-
-    // Extract the JSON block safely from the markdown wrapper
-    const jsonMatch = rawText.match(/```json([\s\S]*?)```/);
-    const cleanJsonText = jsonMatch ? jsonMatch[1].trim() : rawText.trim();
-
-    return JSON.parse(cleanJsonText);
-
-  } catch (error) {
-    console.error("Gemini processing failed:", error);
-    throw error;
+ 
+  const rawText: string = response.text ?? ""; 
+  
+  if (!rawText) {
+    throw new Error("LLM provider returned an empty or undefined response text.");
   }
+
+ 
+  const jsonMatch = rawText.match(/```json([\s\S]*?)```/);
+  const cleanJsonText = jsonMatch && jsonMatch[1] ? jsonMatch[1].trim() : rawText.trim();
+
+  return JSON.parse(cleanJsonText) as Analysis;
 }
 
 

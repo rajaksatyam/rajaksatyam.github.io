@@ -1,5 +1,5 @@
 import YTD from "yt-dlp-exec";
-import { analyzeVideo,} from './summery.LLM.service.js';
+import { analyzeVideo, type Analysis} from './summery.LLM.service.js';
 
 import { logger } from "../utility/logger.utility.js";
 
@@ -41,7 +41,7 @@ export const download = async (URL: string) => {
   const info = await YTD(URL, options);
   const cdnURL = info.url ?? info.formats?.at(-1)?.url
   logger.info(cdnURL)
-  const summery = await analyzeVideo(cdnURL);
+  const summery:Analysis = await analyzeVideo(cdnURL);
 
   return summery;
 }

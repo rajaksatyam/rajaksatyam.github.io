@@ -119,7 +119,7 @@ const analyzeWithGemini = async (cdnURL: string): Promise<Analysis> => {
     config: {
       tools: [{ googleSearch: {} }],
     },
-    contents: `cdnURL: [${cdnURL}] ${PROMPT}`,
+    contents: `This is vido cdnURL: [${cdnURL}] ${PROMPT}`,
   })
 
   const rawText = response.text ?? ""

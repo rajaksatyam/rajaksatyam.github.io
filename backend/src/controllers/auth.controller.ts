@@ -11,8 +11,8 @@ const cookie = (res: Response, token: string) => {
   const isProd = EnvConfig.NODE_ENV === "production";
   return res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "none",
+    secure: true,
     maxAge: 15 * 60 * 1000,
   });
 }

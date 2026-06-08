@@ -9,7 +9,7 @@ export const globalErrors = (
   err:unknown,
   req:Request,
   res:Response,
-  next:NextFunction
+  _next:NextFunction
 ): void=>{
 
 
@@ -88,6 +88,9 @@ res.status(500).json({
 })
 }
 
-export const notFoundError = (req:Request,_res:Response,next:NextFunction):void=>{
-  next(new AppError(`Route ${req.originalUrl} Page not Found`,404))
+export const notFoundError = (_req:Request,res:Response,_next:NextFunction):void=>{
+   res.status(404).json({
+    success: false,
+    message: "Not Found"
+  })
 }

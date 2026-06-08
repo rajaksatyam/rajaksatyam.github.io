@@ -23,19 +23,15 @@ const cookie = (res: Response, token: string) => {
 
 export const SignUpController = async (
   req: Request<{}, {}, Auth.SignUp>,
-  res: Response, next: NextFunction
+  res: Response,
+  _next: NextFunction
 ) => {
   const user = await RegisterUser(req.body);
-  if (user === "user Already Exists.") return res.status(401).json({ msg: user });
-
-
   cookie(res, user.token)
 
   return res.status(201).json({
     msg: "You are Register Successfully.",
-    User: {
-      userName: user.userName,
-    },
+    User: {userName: user.userName},
   });
 }
 
@@ -56,8 +52,6 @@ export const SignInController = async (
       userName: user.userName
     }
   })
-
-
 };
 
 export const signOutController = async (req: Request, res: Response) => {

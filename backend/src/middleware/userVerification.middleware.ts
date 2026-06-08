@@ -10,11 +10,17 @@ export interface AuthRequest extends Request {
     user?: string | JWT.JwtPayload;
 }
 
+<<<<<<< HEAD
 export const verifyUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
 
+=======
+export const verifyUser = async (req: AuthRequest, _res: Response, next: NextFunction) => {
+    const token = req.cookies.token;
+>>>>>>> ddba480 (Backend bugs fix)
 
-    if (!token) return next(new AppError("Unauthrize Access", 401));
+
+    if (!token) throw new AppError("Unauthrize Access", 401);
 
     const tokenBlackListed = await blackListedTokenFinderRepo(token);
     if (tokenBlackListed) throw new AppError("Unauthrize Access", 401)

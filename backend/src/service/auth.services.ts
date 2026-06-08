@@ -17,7 +17,7 @@ export const RegisterUser = async (data: Auth.SignUp) => {
 
 
   const userExists = await findUser(data.userName);
-  if (userExists) return "user Already Exists."
+  if (userExists) throw new AppError("User already esists.",409);
 
   const hashed = await hashPassword(data.password);
 

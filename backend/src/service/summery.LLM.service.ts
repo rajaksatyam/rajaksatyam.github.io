@@ -240,8 +240,8 @@
 
 
 import { GoogleGenAI } from "@google/genai";
-import { EnvConfig } from "../config/env.config";
-import { AppError } from "../errors/AppErrors.errors";
+import { EnvConfig } from "../config/env.config.js";
+import { AppError } from "../errors/AppErrors.errors.js";
 
 
 export interface Analysis {

@@ -71,6 +71,7 @@ export const signOutController = async (req: Request, res: Response) => {
 export const refreshController = (req: Request, res: Response, next: NextFunction) => {
 
   const token = genToken(req.body.user.id)
+  console.log("GenToken:",token)
   cookie(res, token)
   res.json({ ok: true })
 }

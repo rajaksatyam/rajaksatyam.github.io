@@ -9,7 +9,7 @@ import type { Types } from "mongoose";
 
 
 export const genToken = (id:Types.ObjectId|string)=>{
-  return JWT.sign({id}, EnvConfig.JWT_SECRET, { expiresIn: "15m" })
+  return JWT.sign({id}, EnvConfig.JWT_SECRET, { expiresIn: "7d" })
 }
 
 

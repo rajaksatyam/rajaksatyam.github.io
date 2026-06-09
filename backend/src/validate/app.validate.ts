@@ -8,7 +8,7 @@ export const AnalyzeSchema = z.object({
         v.includes("youtube.com") ||
         v.includes("youtu.be") ||
         v.includes("instagram.com") ||
-        v.startsWith("http"),
+        // v.startsWith("http"),
       "Paste a YouTube, Instagram or blog URL"
     ),
 });

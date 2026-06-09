@@ -8,7 +8,7 @@ import { logger } from "../utility/logger.utility.js";
 
 
 const cookie = (res: Response, token: string) => {
-  const isProd = EnvConfig.NODE_ENV === "production";
+
   return res.cookie("token", token, {
     httpOnly: true,
     sameSite: "none",
@@ -68,9 +68,4 @@ export const signOutController = async (req: Request, res: Response) => {
     msg: "LogOut Sucessfully"
   })
 }
-export const refreshController = (req: Request, res: Response, next: NextFunction) => {
 
-  const token = genToken(req.body.user.id)
-  cookie(res, token)
-  res.json({ ok: true })
-}

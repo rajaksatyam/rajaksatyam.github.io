@@ -3,6 +3,12 @@
 > **Stop watching. Start knowing.**
 > KB turns any YouTube or Instagram URL into a structured intelligence report — AI-generated summary, word-for-word transcription, fact-check verdict, and curated resources — delivered in under a minute.
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-94.7%25-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
 ---
 
 ## Table of Contents
@@ -17,6 +23,7 @@
   - [Installation](#installation)
   - [Environment Variables](#environment-variables)
   - [Running the App](#running-the-app)
+  - [Docker Deployment](#docker-deployment)
 - [API Reference](#api-reference)
   - [Authentication](#authentication)
   - [Analysis](#analysis)
@@ -33,24 +40,33 @@
 
 Most people watch a 40-minute video to extract three minutes of insight. **KB eliminates that tax.**
 
-Paste a URL — YouTube, Instagram, whatever — and KB's pipeline kicks in: `yt-dlp` pulls the raw video, Google Gemini 2.5 Flash tears through every frame and word, and within a minute you have a production-quality intelligence report back in your browser. Not a generic transcript dump. A structured, machine-verified breakdown: a sharp title, a narrative overview, distilled key points, a timestamped transcription you can actually navigate, a fact-check verdict with a supporting report, and a curated list of external resources for every claim worth following up on.
+Paste a URL — YouTube, Instagram, or similar — and KB's pipeline kicks in: `yt-dlp` pulls the raw video, Google Gemini 2.5 Flash processes every frame and word, and within a minute you have a production-quality intelligence report back in your browser. Not a generic transcript dump — a structured, machine-verified breakdown:
 
-Every report is tied to your account and stored in MongoDB — searchable, browsable, and paginated across an infinite-scroll sidebar so your analysis history is always one click away. The stack is built for the real world: JWT auth with `httpOnly` cookies and token blacklisting, Argon2id password hashing, Zod validation on every boundary, Helmet security headers, rate limiting, Pino structured logging, and a centralised error handler that speaks fluent HTTP.
+- A sharp, AI-generated **title**
+- A **narrative overview** and distilled **key points**
+- A **timestamped transcription** you can actually navigate
+- A **fact-check verdict** (`accurate` / `inaccurate` / `partially accurate`) with a full report
+- A curated list of **external resources** for every claim worth following up on
 
-KB is what happens when you stop treating AI as a novelty and start wiring it into a production-grade backend.
+Every report is tied to your account and stored in MongoDB — searchable, browsable, and paginated across an infinite-scroll sidebar so your analysis history is always one click away.
+
+The stack is built for the real world: JWT auth with `httpOnly` cookies and token blacklisting, Argon2id password hashing, Zod validation on every boundary, Helmet security headers, rate limiting, Pino structured logging, and a centralised error handler. Deployed on Oracle Cloud using Docker with OCI Vault for secret management.
 
 ---
 
 ## Features
 
-- **Multi-platform analysis** — YouTube and Instagram URLs supported out of the box
-- **AI-generated output** — Title, overview, key points, timestamped transcription, fact-check verdict (`accurate` / `inaccurate` / `partially accurate`), and curated resource links
-- **Per-user history** — Every analysis is saved to the database, paginated (10 per page), and accessible via infinite scroll in the sidebar
-- **Secure authentication** — JWT stored in `httpOnly` cookies; tokens are blacklisted on sign-out so they cannot be replayed
-- **Input validation** — All request bodies are validated with Zod on both client and server; the server also validates every environment variable at startup and will refuse to boot if any value is missing
-- **Rate limiting** — Auth routes are capped at 5 requests per 15 minutes; a general 60 req/min limiter is available for production
-- **Structured logging** — Pino + pino-http write JSON logs on every request; `pino-pretty` formats them for local development
-- **Production-ready error handling** — Centralised middleware catches operational errors (`AppError`), MongoDB duplicate-key conflicts (11000), Mongoose `CastError`, and JWT errors; stack traces are included only in `development` mode
+| Feature | Description |
+|---|---|
+| **Multi-platform analysis** | YouTube and Instagram URLs supported out of the box |
+| **AI-generated output** | Title, overview, key points, timestamped transcription, fact-check verdict, and resource links |
+| **Per-user history** | Every analysis is saved, paginated (10/page), and accessible via infinite scroll |
+| **Secure authentication** | JWT in `httpOnly` cookies; tokens are blacklisted on sign-out |
+| **Input validation** | Zod validation on all request bodies on both client and server |
+| **Rate limiting** | Auth routes capped at 5 req / 15 min; general 60 req/min limiter available |
+| **Structured logging** | Pino + pino-http write JSON logs on every request |
+| **Production-ready error handling** | Centralised middleware covers all operational, DB, and JWT error types |
+| **Docker + OCI deployment** | Single `docker-compose.yml`; secrets fetched from Oracle Cloud Vault at runtime |
 
 ---
 
@@ -114,11 +130,11 @@ KB is what happens when you stop treating AI as a novelty and start wiring it in
 │  │  signOut        │   │                              │   │
 │  └────────┬────────┘   └──────────────┬───────────────┘   │
 │           │                           │                    │
-│  ┌────────▼────────────────────────── ▼───────────────┐   │
+│  ┌────────▼──────────────────────────▼────────────────┐   │
 │  │              Service Layer                          │   │
 │  │  auth.service   history.service   ydl.service       │   │
 │  │                                  summery.LLM.service│   │
-│  └────────┬────────────────────────── ▼───────────────┘   │
+│  └────────┬──────────────────────────▼────────────────┘   │
 │           │                           │                    │
 └───────────┼───────────────────────────┼────────────────────┘
             │                           │
@@ -130,7 +146,7 @@ KB is what happens when you stop treating AI as a novelty and start wiring it in
 └────────────────────┘
 ```
 
-### Request lifecycle for `/api/analyze`
+### Request Lifecycle for `/api/analyze`
 
 1. Client sends `POST /api/analyze` with `{ url }` — the JWT cookie is attached automatically
 2. `verifyUser` middleware decodes and validates the JWT, checks it is not blacklisted, and attaches `req.user`
@@ -146,6 +162,7 @@ KB is what happens when you stop treating AI as a novelty and start wiring it in
 ```
 KB/
 ├── .gitignore
+├── docker-compose.yml             # Production deployment (OCI)
 ├── backend/
 │   ├── server.ts                  # Entry point — connects DB, starts server
 │   ├── package.json
@@ -237,7 +254,7 @@ KB/
 Install yt-dlp:
 
 ```bash
-# macOS / Linux
+# macOS / Linux via pip
 pip install yt-dlp
 
 # or via Homebrew
@@ -248,8 +265,8 @@ brew install yt-dlp
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/rajaksatyam/KB.git
-cd KB
+git clone https://github.com/rajaksatyam/rajaksatyam.github.io.git
+cd rajaksatyam.github.io
 
 # 2. Install backend dependencies
 cd backend
@@ -327,11 +344,46 @@ npm run build        # tsc + vite build → dist/
 npm run preview      # local preview of production build
 ```
 
+### Docker Deployment
+
+The project ships with a `docker-compose.yml` configured for Oracle Cloud Infrastructure (OCI). Secrets are resolved from OCI Vault at container startup, keeping credentials out of the image and environment files entirely.
+
+```bash
+# Set required OCI variables before deploying
+export OCI_REGISTRY=<your-region>.ocir.io
+export OCI_NAMESPACE=<your-tenancy-namespace>
+
+# Pull and start
+docker compose up -d
+```
+
+**`docker-compose.yml` overview:**
+
+```yaml
+services:
+  backend:
+    image: ${OCI_REGISTRY}/${OCI_NAMESPACE}/backend:latest
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "5214:5214"
+    mem_limit: 600m
+    environment:
+      - NODE_ENV=production
+      - SECRET_OCID_MONGO_URI=ocid1.vaultsecret...
+      - SECRET_OCID_JWT_SECRET=ocid1.vaultsecret...
+      - SECRET_OCID_CLIENT_URI=ocid1.vaultsecret...
+      - SECRET_OCID_ARGON2_PEPPER=ocid1.vaultsecret...
+      - SECRET_OCID_GEMINI_KEY=ocid1.vaultsecret...
+```
+
+Each `SECRET_OCID_*` variable is the OCID of an OCI Vault secret. The backend resolves them at startup before the server begins accepting requests.
+
 ---
 
 ## API Reference
 
-All API endpoints are prefixed with `/api`. Request and response bodies are JSON. Authenticated routes require a valid `token` cookie (set automatically by the browser after sign-in).
+All endpoints are prefixed with `/api`. Request/response bodies are JSON. Authenticated routes require a valid `token` cookie (set automatically after sign-in).
 
 ### Authentication
 
@@ -357,22 +409,18 @@ Register a new account.
 |---|---|---|
 | `userName` | string | 3–10 chars, alphanumeric only |
 | `email` | string | Valid email format |
-| `password` | string | ≥ 8 chars, must contain uppercase, lowercase, digit, and special character |
+| `password` | string | ≥ 8 chars; must contain uppercase, lowercase, digit, and special character |
 
 **Response `201`**
 
 ```json
 {
   "msg": "You are Register Successfully.",
-  "User": {
-    "userName": "alice"
-  }
+  "User": { "userName": "alice" }
 }
 ```
 
 Sets `Set-Cookie: token=<jwt>; HttpOnly; SameSite=Strict`
-
-**Error responses**
 
 | Status | Condition |
 |---|---|
@@ -400,15 +448,11 @@ Sign in to an existing account.
 ```json
 {
   "msg": "User SignIn Sucessfully.",
-  "user": {
-    "userName": "alice"
-  }
+  "user": { "userName": "alice" }
 }
 ```
 
 Sets `Set-Cookie: token=<jwt>; HttpOnly; SameSite=Strict`
-
-**Error responses**
 
 | Status | Condition |
 |---|---|
@@ -419,14 +463,12 @@ Sets `Set-Cookie: token=<jwt>; HttpOnly; SameSite=Strict`
 
 #### `GET /api/auth/signOut`
 
-Invalidate the current session. The JWT is added to a blacklist TTL collection in MongoDB so it cannot be reused.
+Invalidate the current session. The JWT is added to a blacklist TTL collection in MongoDB.
 
 **Response `200`**
 
 ```json
-{
-  "msg": "LogOut Sucessfully"
-}
+{ "msg": "LogOut Sucessfully" }
 ```
 
 Clears the `token` cookie.
@@ -437,9 +479,7 @@ Clears the `token` cookie.
 
 #### `POST /api/analyze`
 
-Download and analyse a video URL.
-
-> **Requires authentication.**
+Download and analyse a video URL. **Requires authentication.**
 
 **Request body**
 
@@ -468,7 +508,7 @@ Download and analyse a video URL.
       { "timestamp": "01:22", "text": "..." }
     ],
     "verification": {
-      "factCheckReport": "Claim X was confirmed by source Y. Claim Z requires additional context.",
+      "factCheckReport": "Claim X was confirmed by source Y.",
       "verdict": "partially accurate"
     },
     "resources": [
@@ -494,8 +534,6 @@ Download and analyse a video URL.
 
 > **Note:** This endpoint triggers a video download followed by a Gemini AI upload. Expect a response time of **20–60 seconds** depending on video length and network conditions. The analysis is saved to the user's history automatically in the background.
 
-**Error responses**
-
 | Status | Condition |
 |---|---|
 | `401` | Missing or invalid JWT cookie |
@@ -513,8 +551,6 @@ All history endpoints require authentication. Results are sorted by `createdAt` 
 
 Retrieve a paginated page of the current user's analysis history.
 
-**Query parameters**
-
 | Param | Type | Default | Description |
 |---|---|---|---|
 | `page` | number | `1` | 1-based page number |
@@ -529,9 +565,8 @@ Retrieve a paginated page of the current user's analysis history.
       "_id": "664f1a2b3c4d5e6f7a8b9c0d",
       "userId": "664e0011223344556677aabb",
       "url": "https://www.youtube.com/watch?v=...",
-      "result": { ... },
-      "createdAt": "2026-05-24T18:30:00.000Z",
-      "updatedAt": "2026-05-24T18:30:00.000Z"
+      "result": { "..." : "..." },
+      "createdAt": "2026-05-24T18:30:00.000Z"
     }
   ],
   "page": 1,
@@ -541,27 +576,13 @@ Retrieve a paginated page of the current user's analysis history.
 }
 ```
 
-| Field | Description |
-|---|---|
-| `items` | Array of up to 10 history entries |
-| `page` | Current page number |
-| `limit` | Items per page (always 10) |
-| `total` | Total number of history entries for this user |
-| `hasMore` | `true` if there are more pages after this one |
-
 ---
 
 #### `DELETE /api/history/:id`
 
 Delete a single history entry. The entry must belong to the authenticated user.
 
-**Response `200`**
-
-```json
-{ "success": true }
-```
-
-**Error responses**
+**Response `200`** — `{ "success": true }`
 
 | Status | Condition |
 |---|---|
@@ -573,11 +594,7 @@ Delete a single history entry. The entry must belong to the authenticated user.
 
 Delete **all** history entries for the authenticated user.
 
-**Response `200`**
-
-```json
-{ "success": true }
-```
+**Response `200`** — `{ "success": true }`
 
 ---
 
@@ -585,9 +602,9 @@ Delete **all** history entries for the authenticated user.
 
 ### State Management
 
-State is managed with **Zustand** stores. There are two stores:
+State is managed with **Zustand** stores.
 
-**`auth.store.ts`** — persisted to `localStorage` via `zustand/middleware/persist`
+**`auth.store.ts`** — persisted to `localStorage`
 
 | State | Type | Description |
 |---|---|---|
@@ -634,23 +651,24 @@ Actions: `loadFirstPage()`, `loadNextPage()`, `remove(id)`, `clear()`, `setQuery
 
 | Mechanism | Implementation |
 |---|---|
-| **Password hashing** | Argon2id via `@node-rs/argon2` with a server-side pepper stored in `ARGON2_PEPPER`. Industry-recommended memory-hard algorithm. |
-| **JWT storage** | Tokens are stored exclusively in `httpOnly` cookies — inaccessible to JavaScript, protecting against XSS theft. |
-| **Token expiry** | JWTs expire after 15 minutes. |
-| **Token blacklisting** | On sign-out, the token is persisted to a `tokenBlackList` MongoDB collection with a TTL index that expires the document automatically when the JWT expires. Every protected request checks this collection. |
-| **Security headers** | `Helmet` sets `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, and other hardening headers on every response. |
-| **CORS** | `cors` is configured with an explicit `origin` whitelist (`CLIENT_URI`) and `credentials: true`. |
-| **Rate limiting** | Auth endpoints: 5 requests / 15 min. General limiter (60 req/min) available — enable by uncommenting in `app.ts`. |
-| **Input validation** | All request bodies are validated by Zod schemas on the server before reaching the controller layer. Invalid payloads are rejected with a `400`. |
-| **Env validation** | `env.config.ts` validates every environment variable at startup using a Zod schema. The process exits if any required variable is absent, preventing silent misconfiguration. |
-| **Request body limit** | `express.json({ limit: '10kb' })` prevents large-payload DoS attacks. |
-| **Cookie flags** | `SameSite: strict` prevents CSRF. `Secure: true` is set automatically in production. |
+| **Password hashing** | Argon2id via `@node-rs/argon2` with a server-side pepper stored in `ARGON2_PEPPER` |
+| **JWT storage** | Tokens stored exclusively in `httpOnly` cookies — inaccessible to JavaScript |
+| **Token expiry** | JWTs expire after 15 minutes |
+| **Token blacklisting** | On sign-out, the token is persisted to a `tokenBlackList` MongoDB TTL collection; every protected request checks this collection |
+| **Security headers** | Helmet sets `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, and other hardening headers |
+| **CORS** | Explicit `origin` whitelist (`CLIENT_URI`) with `credentials: true` |
+| **Rate limiting** | Auth endpoints: 5 req / 15 min. General limiter (60 req/min) available — enable by uncommenting in `app.ts` |
+| **Input validation** | All request bodies validated by Zod schemas before reaching the controller layer |
+| **Env validation** | `env.config.ts` validates every environment variable at startup; process exits on missing or malformed values |
+| **Request body limit** | `express.json({ limit: '10kb' })` prevents large-payload DoS attacks |
+| **Cookie flags** | `SameSite: strict` prevents CSRF; `Secure: true` is set automatically in production |
+| **OCI Vault (production)** | All secrets resolved from Oracle Cloud Vault OCIDs at container startup — no plaintext secrets in images or compose files |
 
 ---
 
 ## Error Handling
 
-All errors flow through the global error handler in `errorHandle.middleware.ts`. The handler recognises and formats the following error types:
+All errors flow through the global error handler in `errorHandle.middleware.ts`.
 
 | Error type | HTTP status | Trigger |
 |---|---|---|
@@ -663,13 +681,13 @@ All errors flow through the global error handler in `errorHandle.middleware.ts`.
 
 Stack traces are included in the response body only when `NODE_ENV=development`.
 
-**Response shape** (all errors):
+**Error response shape:**
 
 ```json
 {
   "success": false,
   "message": "Human-readable error message",
-  "stack": "Error: ...\n    at ..."   // development only
+  "stack": "Error: ...\n    at ..."
 }
 ```
 
@@ -684,9 +702,13 @@ Stack traces are included in the response body only when `NODE_ENV=development`.
 5. Open a Pull Request against `main`
 
 Please ensure:
+
 - All TypeScript compiles without errors (`npm run build` in both `backend/` and `frontend/`)
 - New environment variables are added to the Zod schema in `env.config.ts` and documented in the [Environment Variables](#environment-variables) section
 - New API endpoints are documented in the [API Reference](#api-reference) section
 
 ---
 
+<p align="center">
+  Built with Node.js · Express · React · MongoDB · Google Gemini · Oracle Cloud
+</p>

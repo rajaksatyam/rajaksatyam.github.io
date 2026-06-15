@@ -29,7 +29,7 @@ export const AnalyseForm = ({ onSubmit, loading }: Props) => {
           <input
             value={url}
             onChange={(e) => { setUrl(e.target.value); setError('') }}
-            placeholder="Paste a YouTube, Instagram or blog URL…"
+            placeholder="Paste a Instagram URL…"
             disabled={loading}
             style={{
               width: '100%',

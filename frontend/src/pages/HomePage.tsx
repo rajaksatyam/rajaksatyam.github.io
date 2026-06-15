@@ -88,7 +88,7 @@ export const HomePage = () => {
                 What do you want to analyse?
               </h1>
               <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-                YouTube · Instagram · Blogs — paste any URL
+                Instagram - paste URL | YouTube and blogs coming soon!
               </p>
             </div>
           )}

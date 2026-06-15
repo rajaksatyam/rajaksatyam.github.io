@@ -12,9 +12,9 @@ export const download = async (URL: string) => {
 
   const options: any = {
     preferFreeFormats: true,
-    dumpSingleJson: true,   // just metadata, no download
+    dumpSingleJson: true,   
     noWarnings: true,
-    cookies: '/app/cookies.txt',
+    cookies: URL.includes("instagram")=== true ?'/app/cookies.txt': null,
     addHeader: ['referer:instagram.com',
       'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'] as any
   };

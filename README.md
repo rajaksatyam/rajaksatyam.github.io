@@ -705,7 +705,7 @@ Please ensure:
 
 - All TypeScript compiles without errors (`npm run build` in both `backend/` and `frontend/`)
 - New environment variables are added to the Zod schema in `env.config.ts` and documented in the [Environment Variables](#environment-variables) section
-- New API endpoints are documented in the [API Reference](#api-reference) section
+- New API endpoints are documented in the [API Reference](#api-reference) section.
 
 ---
 
